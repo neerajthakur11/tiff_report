@@ -27,6 +27,7 @@ import traceback
 import xlsxwriter
 
 SCRIPT_PATH = 'C:/Redist/' 
+THUMBNAIL_PATH = '/var/job_report_thumbnail/'
 file_name = 'Job Report.xlsx'
 img_file_ext = ['.tif', '.tiff', '.jpg', '.jpeg']
 glob_var = 2
@@ -43,8 +44,8 @@ G 7. SQFT (Formula) %5% * %6% (HIDDEN)
 H 8. Number of QTY
 I 9. Total SQFT (Formula) %7% * %8%
 J 10. Rate (Manula fil)
-K 11. Amount (fomula) %9% * %10%
-L 12. Blank
+K 11. Design Charges
+L 12. Total Amount (fomula) %9% * %10% + %11%
 M 13. PATH (Hidden)
 '''
 
@@ -86,15 +87,15 @@ def add_worksheet(workbook):
     worksheet.write('I1', 'Total SQFT', cell_bold_format)
     worksheet.set_column('I:I', 11)
 
-
     worksheet.write('J1', 'Rate', cell_bold_format)
     worksheet.set_column('J:J', 11)
     
-    worksheet.write('K1', 'Ammount', cell_bold_format)
+    worksheet.write('K1', 'Design Charges', cell_bold_format)
     worksheet.set_column('K:K', 11)
+     
+    worksheet.write('L1', 'Total Ammount', cell_bold_format)
+    worksheet.set_column('L:L', 11)
     
-    # L is left Blank
-
     worksheet.write('M1', 'Path', cell_bold_format)
     worksheet.set_column('M:M', 90, None, {'hidden': 1})
     #hidden
@@ -159,7 +160,7 @@ def write_to_worksheet(worksheet, files, dirname, report_dir):
         
         worksheet.write_formula('I%d'%glob_var,'=G%d*H%d'%(glob_var, glob_var))
 
-        worksheet.write_formula('K%d'%glob_var,'=I%d*J%d'%(glob_var, glob_var))
+        worksheet.write_formula('L%d'%glob_var,'=I%d*J%d + K%d'%(glob_var, glob_var))
             
         worksheet.write('M%d'%glob_var, dirname)
 
@@ -199,7 +200,7 @@ def get_file_details(file_path, file_name, dirname):
     
     wlk_drive, wlk_dir = splitdrive(dirname)
 
-    thumbnail_path = join(SCRIPT_PATH, 'thumbnail')
+    thumbnail_path = join(THUMBNAIL_PATH, 'thumbnail')
     thumbnail_path = join(thumbnail_path, wlk_dir[1:])
     if not os.path.exists(thumbnail_path):
         os.makedirs(thumbnail_path)
