@@ -25,13 +25,18 @@ import sys
 from PIL import Image
 import traceback
 import xlsxwriter
+import logging
+import logging.handler
 
-SCRIPT_PATH = 'C:/Redist/' 
+SCRIPT_PATH = os.getcwd()
 THUMBNAIL_PATH = '/var/job_report_thumbnail/'
-file_name = 'Job Report.xlsx'
+file_name = 'Job_Report.xlsx'
 img_file_ext = ['.tif', '.tiff', '.jpg', '.jpeg']
 glob_var = 2
-use_thumbnail = True
+rlog = logging.getLogger('tiff_report')
+rlog.setLevel(logging.DEBUG)
+rlog_handler = logging.handlers.SysLogHandler(address = '/dev/log')
+rlog.addHandler(rlog_handler)
 
 '''
 A 1. Date (Date Format)
@@ -50,7 +55,6 @@ M 13. PATH (Hidden)
 '''
 
 def add_worksheet(workbook):
-    global use_thumbnail
     cell_bold_format = workbook.add_format({'bold': True})
     worksheet = workbook.add_worksheet()
     
@@ -104,15 +108,14 @@ def add_worksheet(workbook):
 
 
 def listFiles(report_dir):
-    print file_name
-    
+    rlog.debug('creating report for file: %s at %s'%(file_name, report_dir))
+    file_name = os.path.basename(os.path.normpath(report_dir)) + '_' + file_name
     try:
         workbook = xlsxwriter.Workbook(join(report_dir, file_name))
         print 'creating file %s'%join(report_dir, file_name)
     except:
         workbook = xlsxwriter.Workbook(join(SCRIPT_PATH, file_name))
-    
-    print 'report for path %s'%report_dir
+        rlog.exception('could not create file in directory')
 
     worksheet = add_worksheet(workbook)
     
@@ -123,15 +126,14 @@ def listFiles(report_dir):
 
 def write_to_worksheet(worksheet, files, dirname, report_dir):
     global glob_var
-    global use_thumbnail
     for each_file in files:
         if not is_filename_valid(each_file):
             continue
         each_file_path = join(dirname, each_file)
         try:
             f_dpi, x_inch, y_inch, div_factor, thumbnail_path, row_height = get_file_details(each_file_path, each_file, dirname)
-        except Exception as ex:
-            traceback.print_exc()
+        except:
+            rlog.exception('Error getting file details for %s'%each_file_path)
             f_dpi = x_inch = y_inch = 0
             div_factor = 1
             thumbnail_path = None
@@ -169,7 +171,6 @@ def write_to_worksheet(worksheet, files, dirname, report_dir):
         
 
 def get_file_details(file_path, file_name, dirname):
-    global use_thumbnail
     THUMB_SIZE = 100, 100
     #Image.DEBUG = True
     fobj = Image.open(file_path)
@@ -204,7 +205,7 @@ def get_file_details(file_path, file_name, dirname):
     thumbnail_path = join(thumbnail_path, wlk_dir[1:])
     if not os.path.exists(thumbnail_path):
         os.makedirs(thumbnail_path)
-        print 'making dirs %s'%thumbnail_path
+        rlog.info('making dirs %s'%thumbnail_path)
 
     thumbnail_path = join(thumbnail_path, file_name)
     thumbnail_path = thumbnail_path + '.jpg'
@@ -222,7 +223,7 @@ def get_file_details(file_path, file_name, dirname):
         except:
             thumbnail_height = 10
 
-        print 'skipping generating thumbnail for %s'%file_name
+        rlog.info('skipping generating thumbnail for %s'%file_name)
     return xdpi, x_inch, y_inch, div_factor, thumbnail_path, thumbnail_height
 
 
@@ -245,7 +246,7 @@ def get_qty_of_job(filename):
 
         qty = int(filename[st_idx:en_idx])
     except:
-        traceback.print_exc()
+        rlog.exception('could not get qty for file %s'%filename)
     return qty
 
 def is_filename_valid(filename):
