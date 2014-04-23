@@ -26,7 +26,7 @@ from PIL import Image
 import traceback
 import xlsxwriter
 import logging
-import logging.handler
+import logging.handlers
 
 SCRIPT_PATH = os.getcwd()
 THUMBNAIL_PATH = '/var/job_report_thumbnail/'
@@ -108,6 +108,7 @@ def add_worksheet(workbook):
 
 
 def listFiles(report_dir):
+    global file_name
     rlog.debug('creating report for file: %s at %s'%(file_name, report_dir))
     file_name = os.path.basename(os.path.normpath(report_dir)) + '_' + file_name
     try:
@@ -162,7 +163,7 @@ def write_to_worksheet(worksheet, files, dirname, report_dir):
         
         worksheet.write_formula('I%d'%glob_var,'=G%d*H%d'%(glob_var, glob_var))
 
-        worksheet.write_formula('L%d'%glob_var,'=I%d*J%d + K%d'%(glob_var, glob_var))
+        worksheet.write_formula('L%d'%glob_var,'=I%d*J%d + K%d'%(glob_var, glob_var, glob_var))
             
         worksheet.write('M%d'%glob_var, dirname)
 
