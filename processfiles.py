@@ -140,9 +140,8 @@ def write_to_worksheet(worksheet, files, dirname, report_dir):
             thumbnail_path = None
         mtime = os.path.getmtime(each_file_path)
 
-        #dt_obj = datetime.datetime.strptime(mtime, "%a %b %d %H:%M:%S %Y") 
-        #worksheet.write_datetime('A%d'%glob_var, dt_obj, '%d-%m-%Y')
-        worksheet.write('A%d'%glob_var, str(datetime.datetime.fromtimestamp(mtime).strftime("%d-%m-%Y")))
+        date_format = workbook.add_format({'num_format': 'dd-mm-yyyy'})
+        worksheet.write_datetime('A%d'%glob_var, datetime.datetime.fromtimestamp(mtime), date_format)
         
         if thumbnail_path != None and use_thumbnail: 
             worksheet.insert_image('C%d'%glob_var, thumbnail_path)
