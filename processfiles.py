@@ -43,7 +43,7 @@ img_file_ext = ['.tif', '.tiff', '.jpg', '.jpeg']
 glob_var = 2
 rlog = logging.getLogger('tiff_report')
 rlog.setLevel(logging.DEBUG)
-rlog_handler = logging.FileHandler('')
+rlog_handler = logging.FileHandler(log_filename)
 rlog.addHandler(rlog_handler)
 
 '''
