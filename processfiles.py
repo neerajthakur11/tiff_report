@@ -29,13 +29,21 @@ import logging
 import logging.handlers
 
 SCRIPT_PATH = os.getcwd()
-THUMBNAIL_PATH = '/var/job_report_thumbnail/'
+LOG_FILENAME = 'report_log.txt'
+
+if sys.platform == 'win32':
+    THUMBNAIL_PATH = 'C:/Redist/job_report_thumbnail/'
+    log_filename = 'C:/Redist/' + LOG_FILENAME
+else:
+    THUMBNAIL_PATH = '/var/job_report_thumbnail/'
+    log_filename = '/var/log/' + LOG_FILENAME
+
 file_name = 'Job_Report.xlsx'
 img_file_ext = ['.tif', '.tiff', '.jpg', '.jpeg']
 glob_var = 2
 rlog = logging.getLogger('tiff_report')
 rlog.setLevel(logging.DEBUG)
-rlog_handler = logging.handlers.SysLogHandler(address = '/dev/log')
+rlog_handler = logging.FileHandler('')
 rlog.addHandler(rlog_handler)
 
 '''
