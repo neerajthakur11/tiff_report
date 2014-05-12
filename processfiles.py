@@ -130,10 +130,10 @@ def listFiles(report_dir):
     
     for dirname, dirnames, filenames in os.walk(report_dir):
         print 'Walking %s'%str(dirname)
-        write_to_worksheet(worksheet, filenames, dirname, report_dir)
+        write_to_worksheet(worksheet, workbook, filenames, dirname, report_dir)
     workbook.close()
 
-def write_to_worksheet(worksheet, files, dirname, report_dir):
+def write_to_worksheet(worksheet, workbook, files, dirname, report_dir):
     global glob_var
     for each_file in files:
         if not is_filename_valid(each_file):
