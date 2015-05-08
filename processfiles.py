@@ -32,8 +32,8 @@ SCRIPT_PATH = os.getcwd()
 LOG_FILENAME = 'report_log.txt'
 
 if sys.platform == 'win32':
-    THUMBNAIL_PATH = 'C:/Redist/job_report_thumbnail/'
-    log_filename = 'C:/Redist/' + LOG_FILENAME
+    THUMBNAIL_PATH = 'C:/tiff_report/job_report_thumbnail/'
+    log_filename = 'C:/tiff_report/' + LOG_FILENAME
 else:
     THUMBNAIL_PATH = '/var/job_report_thumbnail/'
     log_filename = '/var/log/' + LOG_FILENAME
