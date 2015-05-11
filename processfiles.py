@@ -183,7 +183,7 @@ def write_to_worksheet(worksheet, workbook, files, dirname, report_dir):
 
 def get_file_details(file_path, file_name, dirname):
     THUMB_SIZE = 100, 100
-    Image.DEBUG = True
+    #Image.DEBUG = True
     fobj = Image.open(file_path)
     xdpi, ydpi = fobj.info['dpi']
     x_px, y_px = fobj.size
