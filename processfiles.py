@@ -45,6 +45,8 @@ rlog = logging.getLogger('tiff_report')
 rlog.setLevel(logging.DEBUG)
 rlog_handler = logging.FileHandler(log_filename)
 rlog.addHandler(rlog_handler)
+rlog_handler = logging.StreamHandler()
+rlog.addHandler(rlog_handler)
 
 '''
 A 1. Date (Date Format)
@@ -121,7 +123,7 @@ def listFiles(report_dir):
     file_name = os.path.basename(os.path.normpath(report_dir)) + '_' + file_name
     try:
         workbook = xlsxwriter.Workbook(join(report_dir, file_name))
-        print 'creating file %s'%join(report_dir, file_name)
+        rlog.info('creating file %s'%join(report_dir, file_name))
     except:
         workbook = xlsxwriter.Workbook(join(SCRIPT_PATH, file_name))
         rlog.exception('could not create file in directory')
@@ -129,7 +131,8 @@ def listFiles(report_dir):
     worksheet = add_worksheet(workbook)
     
     for dirname, dirnames, filenames in os.walk(report_dir):
-        print 'Walking %s'%str(dirname)
+        rlog.info('Walking %s'%str(dirname))
+        filenames.sort(key=lambda x: os.path.getmtime(os.path.join(dirname, x)))
         write_to_worksheet(worksheet, workbook, filenames, dirname, report_dir)
     workbook.close()
 
@@ -180,7 +183,7 @@ def write_to_worksheet(worksheet, workbook, files, dirname, report_dir):
 
 def get_file_details(file_path, file_name, dirname):
     THUMB_SIZE = 100, 100
-    #Image.DEBUG = True
+    Image.DEBUG = True
     fobj = Image.open(file_path)
     xdpi, ydpi = fobj.info['dpi']
     x_px, y_px = fobj.size
@@ -218,7 +221,7 @@ def get_file_details(file_path, file_name, dirname):
     thumbnail_path = join(thumbnail_path, file_name)
     thumbnail_path = thumbnail_path + '.jpg'
     if not os.path.exists(thumbnail_path) and use_thumbnail:
-        print 'generating thumbnail for %s'%file_name
+        rlog.info('generating thumbnail for %s'%file_name)
         fobj.thumbnail(THUMB_SIZE)
         th_x, th_y = fobj.size
         thumbnail_height = int(th_y * 0.75)
@@ -269,7 +272,7 @@ if __name__ == '__main__':
     global use_thumbnail
     if len(sys.argv) < 3:
         print 'command usage: processfiles.exe <dir> <thumbnail:YES/NO>'
-        exit()
+        os._exit(1)
     try:
         if sys.argv[2] == 'YES':
             use_thumbnail = True
